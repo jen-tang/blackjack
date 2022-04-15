@@ -62,6 +62,19 @@ body{
 }
 
 .restart{
-  display: flex;
-  justify-content: space-around;
+    margin:0 auto;
+    display:block;
+    margin-top: 20px;
+}
+
+.hit{
+  margin-right: 5px;
+}
+
+.stand{
+  margin-left: 5px;
+}
+
+.playerTotal{
+  margin-top: 20px;
 }

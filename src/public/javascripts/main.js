@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', main);
 function main() {
   const playBtn = document.querySelector('.playBtn');
   playBtn.addEventListener('click', handleClick);
-
 }
 
 async function handleClick(evt) {
@@ -15,12 +14,13 @@ async function handleClick(evt) {
 
 function start(){
   let startValues = document.querySelector('#startValues').value;
+  startValues = startValues.replace(/\s/g, '');
   const splitStart = startValues.split(',');
   let myDeck = new getDeck(); 
 
   console.log(myDeck);
   let [player, dealer] = firstDeal(myDeck);
-  console.log('game begun');
+  console.log('new game');
   const hit = document.querySelector('.hit');
   const standd = document.querySelector('.stand');
   hit.addEventListener('click', event => {
@@ -34,7 +34,9 @@ function start(){
 // deck inspiration from https://www.thatsoftwaredude.com/content/6196/coding-a-card-deck-in-javascript
 function getDeck(){
   let startValues = document.querySelector('#startValues').value;
+  startValues = startValues.replace(/\s/g, '');
   const splitStart = startValues.split(',');
+  const splitStartCopy = splitStart.map((x) => x);
   //create deck array
   const suits = ["♠", "♥", "♣", "♦"];
   const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -53,21 +55,35 @@ check = deck.filter(function(objFromA) {
       return (objFromA.Value === objFromB) && (objFromA.Value === "♠");
   })
 }) */
+  deck = deck.map(x => {
+    if(splitStart[0] === x.Value){
+      splitStart.shift();
+    }
+    else{
+      return x;
+    }
+});
+
+deck = deck.filter(function( element ) {
+  return element !== undefined;
+});
+console.log(deck);
+
 
   //shuffle deck
   deck = deck.sort( () => Math.random() - 0.5);
    //add form entered cards to top
-  splitStart.reverse().forEach(x => {
+  splitStartCopy.reverse().forEach(x => {
     x ? deck.push( {Value: x, Suit: "♠"}) : '';
-  });
+  }); 
 
   deck = deck.reverse();
-  console.log(deck);
   return deck;
 }
 
 function firstDeal(deck){
   let startValues = document.querySelector('#startValues').value;
+  startValues = startValues.replace(/\s/g, '');
   const splitStart = startValues.split(',');
   let playerNum = 1;
   let dealerNum = 0;
@@ -132,19 +148,28 @@ function makeCard(card, side) {
 
 
 function handTotal(side) {
-  side = side.map(x => ['J', 'Q', 'K'].includes(x.Value) ? 10 : x.Value);
+  side = side.map(x => x.Value);
   let aces = 0;
   for(let i=0;i<side.length;i++) {
     if(side[i] === 'A') {
+      side[i] = 0;
       aces++;
     }
-  }
-  side = side.filter(x => x === 'A' ? '' : x);
-  side = parseInt(side.reduce((prev, cur) => parseInt(prev) + parseInt(cur), 0));
-  for(let i=aces;i>0;i--) {
-    side = aces ? (side + 11 > 21 ? side + 1 : side + 11) : side; 
+    else if (side[i] === 'J' || side[i] === 'Q'|| side[i] === 'K'){
+      side[i] = 10;
+    }
   }
   console.log(side);
+  side = side.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+  console.log(side);
+  for(let i=aces;i>0;i--) {
+    if(side + 11 > 21){
+      side = side + 1;
+    }
+    else{
+      side = side + 11;
+    }
+  }
   return side;
 }
 
@@ -193,7 +218,6 @@ function deal(deck, side, player, dealer) {
     game.appendChild(won);
     
   }
-  return handTotal(player);
 }
 
 
