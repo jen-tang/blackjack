@@ -9,17 +9,17 @@ function main() {
 
 async function handleClick(evt) {
   evt.preventDefault();
-  let startValues = document.querySelector('#startValues').value;
-  const splitStart = startValues.split(',');
   document.querySelector('.start').style.display="none";
-  start(splitStart);
+  start();
 }
 
-function start(splitStart){
-  let myDeck = new getDeck(splitStart); 
+function start(){
+  let startValues = document.querySelector('#startValues').value;
+  const splitStart = startValues.split(',');
+  let myDeck = new getDeck(); 
 
   console.log(myDeck);
-  let [player, dealer] = firstDeal(myDeck,splitStart);
+  let [player, dealer] = firstDeal(myDeck);
   console.log('game begun');
   const hit = document.querySelector('.hit');
   const standd = document.querySelector('.stand');
@@ -32,7 +32,9 @@ function start(splitStart){
 }
 
 // deck inspiration from https://www.thatsoftwaredude.com/content/6196/coding-a-card-deck-in-javascript
-function getDeck(splitStart){
+function getDeck(){
+  let startValues = document.querySelector('#startValues').value;
+  const splitStart = startValues.split(',');
   //create deck array
   const suits = ["♠", "♥", "♣", "♦"];
   const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -64,7 +66,9 @@ check = deck.filter(function(objFromA) {
   return deck;
 }
 
-function firstDeal(deck, splitStart){
+function firstDeal(deck){
+  let startValues = document.querySelector('#startValues').value;
+  const splitStart = startValues.split(',');
   let playerNum = 1;
   let dealerNum = 0;
   const length = splitStart.length;
@@ -166,7 +170,6 @@ function deal(deck, side, player, dealer) {
   else {
     dealer.push(dealedCard);
     let dtotal = document.querySelector('.dealerTotal');
-    console.log("hi");
     dtotal.innerText = `Computer Hand - Total: ${handTotal(dealer)}`;
   }
   makeCard(dealedCard, side);
@@ -174,24 +177,63 @@ function deal(deck, side, player, dealer) {
   if(handTotal(player) > 21) {
     const choice = document.querySelector('.choice');
     choice.style.display = 'none';
-    const lost = elt('div', 'lost', 'You lost :(');
+    const lost = elt('div', 'result', 'You lost :(');
     const game = document.querySelector('.game');
     game.appendChild(lost);
 
-/*     const restart = document.createElement('button');
-    restart.innerText = 'Restart?';
-    restart.className = 'restart';
+    const restart = elt('button', 'restart', 'Restart');
     restart.onclick = () => restartGame();
-    document.querySelector('.game').appendChild(restart); */
+    game.appendChild(restart);
   }
   else if(handTotal(dealer) > 21) {
     const choice = document.querySelector('.choice');
     choice.style.display = 'none';
-    const won = elt('div', 'won', 'You won :)');
+    const won = elt('div', 'result', 'You won :)');
+    const game = document.querySelector('.game');
+    game.appendChild(won);
+    
+  }
+  return handTotal(player);
+}
+
+
+function checkWinner(player, dealer) {
+  if(handTotal(dealer) <= 21 && handTotal(player) < handTotal(dealer)) {
+    const choice = document.querySelector('.choice');
+    choice.style.display = 'none';
+    const lost = elt('div', 'result', 'You lost :(');
+    const game = document.querySelector('.game');
+    game.appendChild(lost);
+  }
+  else if(handTotal(player) <= 21 && handTotal(player) > handTotal(dealer)) {
+    const choice = document.querySelector('.choice');
+    choice.style.display = 'none';
+    const won = elt('div', 'result', 'You won :)');
     const game = document.querySelector('.game');
     game.appendChild(won);
   }
-  return handTotal(player);
+  else if (handTotal(player) === handTotal(dealer)) {
+    const choice = document.querySelector('.choice');
+    choice.style.display = 'none';
+    const tied = elt('div', 'result', 'You tied :|');
+    const game = document.querySelector('.game');
+    game.appendChild(tied);
+  }
+  const restart = elt('button', 'restart', 'Restart');
+  restart.onclick = () => restartGame();
+  const game = document.querySelector('.game');
+  game.appendChild(restart);
+}
+
+
+function restartGame() {
+  const game = document.querySelector('.game');
+  while (game.firstChild) {
+    game.removeChild(game.firstChild);
+  }
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => card.style.display = 'none');
+  start();
 }
 
 function elt(type) {
