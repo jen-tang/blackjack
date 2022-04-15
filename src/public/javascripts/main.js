@@ -18,13 +18,17 @@ async function handleClick(evt) {
 function start(splitStart){
   let myDeck = new getDeck(splitStart); 
 
-  //console.log(myDeck);
+  console.log(myDeck);
   let [player, dealer] = firstDeal(myDeck,splitStart);
-  /*console.log('called start');
+  console.log('game begun');
   const hit = document.querySelector('.hit');
-  const stand = document.querySelector('.stand');
-  hit.onclick = () => dealer(deck, '.player', player, dealer);
-  stand.onclick = () => standDeal(deck, player, dealer); */
+  const standd = document.querySelector('.stand');
+  hit.addEventListener('click', event => {
+    deal(myDeck, '.playerCards', player, dealer);
+  });
+  standd.addEventListener('click', event => {
+    stand(myDeck, player, dealer); 
+  });
 }
 
 // deck inspiration from https://www.thatsoftwaredude.com/content/6196/coding-a-card-deck-in-javascript
@@ -50,7 +54,6 @@ check = deck.filter(function(objFromA) {
 
   //shuffle deck
   deck = deck.sort( () => Math.random() - 0.5);
-  
    //add form entered cards to top
   splitStart.reverse().forEach(x => {
     x ? deck.push( {Value: x, Suit: "♠"}) : '';
@@ -81,7 +84,7 @@ function firstDeal(deck, splitStart){
   const dealerCards = elt('div', 'dealerCards');
   const playerCards = elt('div', 'playerCards');
 
-  const choice = elt('div', 'choice', elt('button','hit', 'Hit'), elt('button','hit', 'Stand'));
+  const choice = elt('div', 'choice', elt('button','hit', 'Hit'), elt('button','stand', 'Stand'));
   //document.body.appendChild(ul);
   let game = document.querySelector('.game');
   
@@ -118,7 +121,7 @@ function firstDeal(deck, splitStart){
 
 function makeCard(card, side) {
 
-  const e = elt('div', 'card', `${card.Value} ${card.Suit}`);
+  const e = elt('p', 'card', `${card.Value} ${card.Suit}`);
   const check = document.querySelector(side);
   check.appendChild(e);
 }
@@ -143,13 +146,52 @@ function handTotal(side) {
 
 
 function stand(deck, Player, Dealer) {
-  document.querySelector('.hidden').classList.remove('hidden');
-  document.querySelector('.hitStand').style.display = 'none';
-  document.querySelector('.dealerTotal').innerText = `Computer Hand - Total: ${handTotal(dealer)}`;
-  while (handTotal(dealer) <= 16) {
+  document.querySelector('.hiddenCard').classList.remove('hiddenCard');
+  document.querySelector('.choice').style.display = 'none';
+  document.querySelector('.dealerTotal').innerText = `Computer Hand - Total: ${handTotal(Dealer)}`;
+  while (handTotal(Dealer) < 17) {
     deal(deck, '.dealerCards', Player, Dealer);
   }
   checkWinner(Player, Dealer);
+}
+
+function deal(deck, side, player, dealer) {
+  const dealedCard = deck.shift();
+  console.log(dealedCard);
+  if (side === '.playerCards') {
+    player.push(dealedCard);
+    let ptotal = document.querySelector('.playerTotal');
+    ptotal.innerText = `Player Hand - Total: ${handTotal(player)}`;
+  }
+  else {
+    dealer.push(dealedCard);
+    let dtotal = document.querySelector('.dealerTotal');
+    console.log("hi");
+    dtotal.innerText = `Computer Hand - Total: ${handTotal(dealer)}`;
+  }
+  makeCard(dealedCard, side);
+
+  if(handTotal(player) > 21) {
+    const choice = document.querySelector('.choice');
+    choice.style.display = 'none';
+    const lost = elt('div', 'lost', 'You lost :(');
+    const game = document.querySelector('.game');
+    game.appendChild(lost);
+
+/*     const restart = document.createElement('button');
+    restart.innerText = 'Restart?';
+    restart.className = 'restart';
+    restart.onclick = () => restartGame();
+    document.querySelector('.game').appendChild(restart); */
+  }
+  else if(handTotal(dealer) > 21) {
+    const choice = document.querySelector('.choice');
+    choice.style.display = 'none';
+    const won = elt('div', 'won', 'You won :)');
+    const game = document.querySelector('.game');
+    game.appendChild(won);
+  }
+  return handTotal(player);
 }
 
 function elt(type) {
