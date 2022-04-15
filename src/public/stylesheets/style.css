@@ -17,3 +17,23 @@
 #startValues{
 
 }
+
+.playerCards div{
+  display: inline-block;
+  height: 50px;
+  width: 40px;
+  border: solid 2px;
+  margin-right: 5px;
+}
+
+.dealerCards div{
+  display: inline-block;
+  height: 50px;
+  width: 40px;
+  border: solid 2px;
+  margin-right: 5px;
+}
+
+.hiddenCard{
+  visibility: hidden
+}
